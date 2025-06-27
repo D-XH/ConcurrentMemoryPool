@@ -4,14 +4,28 @@
 #include<mutex>
 #include<thread>
 #include<assert.h>
+#include<cstring>
 
 #ifdef _WIN32
     #include<Windows.h>
+    size_t getPageSize() {
+        SYSTEM_INFO si;
+        GetSystemInfo(&si);
+        return si.dwPageSize;
+    }
 #else
     #include<unistd.h>
     #include <sys/mman.h>
+    #include <bits/wordsize.h>
 #endif
 
+#ifdef _WIN64
+    #define __64bit__ 1
+#else
+    #if __WORDSIZE ==  64
+        #define __64bit__ 1
+    #endif
+#endif
 
 static const size_t FREE_LIST_NUM   = 208;              // 空闲链表长度
 static const size_t MAX_BYTES       = 256 * 1024;       // 超过该值，就不从ThreadCache申请内存
